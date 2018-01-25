@@ -10,7 +10,7 @@ public class FileManager {
 
 	public static SimpleFile open(String path) {
 		if (!exists(path)) {
-			throw new FileNotFoundException();
+			throw new FileNotFoundException(path);
 		}
 		return new SimpleFile(new File(path));
 	}

@@ -3,8 +3,10 @@ package org.filemanager.core;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -36,10 +38,25 @@ public class Properties {
 				currentCategoryMap = new HashMap<String, String>();
 			} else {
 				if (currentCategory == null) {
-					throw new IllegalStateException("File starts with no category!");
+					throw new IllegalArgumentException("File starts with no category!");
 				}				
-				String[] keyValue = line.split("=");
-				currentCategoryMap.put(keyValue[0].trim(), keyValue[1].trim());
+				String[] keyValue = line.split("=", 2);
+				if (keyValue.length < 2) {
+					throw new IllegalArgumentException(
+							"Key value expected separated by '='. Instead found: " + line);
+				}
+				String value = keyValue[1].trim();
+				if (value.startsWith("{{") && value.endsWith("}}")) {
+					String newPath = value.substring(2, value.length() - 2); 
+					String[] pathVars = newPath.split("\\.", 3);
+					if (pathVars.length < 3) {
+						throw new IllegalArgumentException(
+								"External variable path is too short: " + newPath);
+					}
+					Properties varProps = new Properties(pathVars[0] + ".properties");
+					value = varProps.getString(pathVars[1], pathVars[2]);
+				}
+				currentCategoryMap.put(keyValue[0].trim(), value);
 			}
 		}
 		if (currentCategory != null) {
@@ -133,6 +150,19 @@ public class Properties {
 	
 	public byte getBoolean(String category, String key, byte defaultValue) {
 		return Byte.parseByte(getString(category, key, String.valueOf(defaultValue)));
+	}
+	
+	public List<String> getList(String category, String key, String delimiter) {
+		
+		return Arrays.asList(getString(category, key).split(delimiter));
+	}
+	
+	public List<String> getList(String category, String key, String delimiter, List<String> defaultValue) {
+		try {
+			return Arrays.asList(getString(category, key).split(delimiter));			
+		} catch (IllegalArgumentException e) {
+			return defaultValue;			
+		}
 	}
 	
 	public void addString(String category, String key, String value) {
