@@ -3,6 +3,7 @@ package org.filemanager.core;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -61,6 +62,17 @@ public class Properties {
     if (currentCategory != null) {
       categoriesMap.put(currentCategory, currentCategoryMap);
     }
+  }
+  
+  public List<String> listCategories() {
+    return new ArrayList<>(categoriesMap.keySet());
+  }
+  
+  public List<String> listSubCategories(String category) {
+    if (!categoriesMap.containsKey(category)) {
+      throw new IllegalArgumentException("category not found: " + category);
+    }
+    return new ArrayList<>(categoriesMap.get(category).keySet());
   }
 
   public String getString(String category, String key) {
@@ -215,5 +227,16 @@ public class Properties {
     } catch (IOException e) {
       throw new RuntimeException("Failed saving properties.", e);
     }
+  }
+
+  public boolean contains(String category) {
+    return categoriesMap.containsKey(category);
+  }
+  
+  public boolean contains(String category, String subcategory) {
+    if (!contains(category)) {
+      throw new IllegalArgumentException("Unknown category: " + category);
+    }
+    return categoriesMap.get(category).containsKey(subcategory);
   }
 }
