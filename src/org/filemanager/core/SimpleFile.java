@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 
-public class SimpleFile {
+public class SimpleFile implements AutoCloseable {
 
   private File file;
   private Scanner scanner;
@@ -167,17 +167,17 @@ public class SimpleFile {
     if (obj instanceof String) {
       output.print((String) obj);
     } else if (obj instanceof Integer) {
-      output.print((Integer) obj);
+      output.print(obj);
     } else if (obj instanceof Double) {
-      output.print((Double) obj);
+      output.print(obj);
     } else if (obj instanceof Float) {
-      output.print((Float) obj);
+      output.print(obj);
     } else if (obj instanceof Character) {
-      output.print((Character) obj);
+      output.print(obj);
     } else if (obj instanceof Boolean) {
-      output.print((Boolean) obj);
+      output.print(obj);
     } else if (obj instanceof Long) {
-      output.print((Long) obj);
+      output.print(obj);
     } else {
       output.print(obj.toString());
     }
@@ -204,6 +204,7 @@ public class SimpleFile {
     }
   }
 
+  @Override
   public void close() {
     scanner.close();
   }
